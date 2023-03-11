@@ -955,7 +955,6 @@ public class Main : GLib.Object{
 	}
 
 	// backup
-
 	public bool create_snapshot (bool is_ondemand, Gtk.Window? parent_win){
 
 		log_debug("Main: create_snapshot()");
@@ -964,6 +963,21 @@ public class Main : GLib.Object{
 		bool update_symlinks = false;
 
 		string sys_uuid = (sys_root == null) ? "" : sys_root.uuid;
+		
+		try{			
+			// Perform any pre-create actions
+			log_debug("Running pre-create tasks...");
+
+			//TODO transform into native vala (should/will script result affect overall process result, i.e. fail upgrade in case of autosnap call?)
+			//     pass action as arg (post-create, pre-create, etc)
+			//     pass status as arg
+			//sh += "if [ -d \"/etc/timeshift/hooks.d\" ]; then \n";
+			//sh += "  run-parts --verbose /etc/timeshift/hooks.d/pre-create \n";
+			//sh += "fi \n";
+		}
+                catch(Error e){
+                        log_error (e.message);
+                }
 		
 		try
 		{
@@ -1319,14 +1333,24 @@ public class Main : GLib.Object{
 		else{
 			message = _("Failed to create snapshot");
 		}
-
+		
 		log_msg(message);
 		OSDNotify.notify_send("TimeShift", message, 10000, "low");
 
 		if (new_snapshot != null){
 			message = _("Tagged snapshot") + " '%s': %s".printf(new_snapshot.name, tag);
 			log_msg(message);
-		}
+		}		
+		
+		// Perform any post-create actions
+		log_debug("Running post-create tasks...");
+
+		//TODO transform into native vala (should/will script result affect overall process result, i.e. fail upgrade in case of autosnap call?)
+		//     pass action as arg (post-create, pre-create, etc)
+		//     pass status as arg
+		//sh += "if [ -d \"/etc/timeshift/hooks.d\" ]; then \n";
+		//sh += "  run-parts --verbose /etc/timeshift/hooks.d/post-create \n";
+		//sh += "fi \n";
 
 		return status;
 	}
